@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Shadowmask
 {
-    public partial class Form1 : Form
+    public partial class ConfigurationPane : Form
     {
-        public Form1()
+        public ConfigurationPane()
         {
             InitializeComponent();
         }
