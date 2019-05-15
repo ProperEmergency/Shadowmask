@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2050
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shadowmask", "Shadowmask.csproj", "{DB090A7C-F64B-4D1F-AF21-2C1D71E008FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DB090A7C-F64B-4D1F-AF21-2C1D71E008FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB090A7C-F64B-4D1F-AF21-2C1D71E008FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB090A7C-F64B-4D1F-AF21-2C1D71E008FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB090A7C-F64B-4D1F-AF21-2C1D71E008FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A43498B5-EE3E-4FC7-8B75-890DDF8FF545}
+	EndGlobalSection
+EndGlobal
