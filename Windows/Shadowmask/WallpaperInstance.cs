@@ -18,19 +18,12 @@ namespace Shadowmask
 
         public WallpaperInstance()
         {
-            InitializeComponent();
-
-            Text = "CefSharp";
-            WindowState = FormWindowState.Maximized;
-
-            browser = new ChromiumWebBrowser("")
-            {
-                Dock = DockStyle.Fill,
-            };
-            this.Controls.Add(browser);
-
-            var bitness = Environment.Is64BitProcess ? "x64" : "x86";
-            var version = String.Format("Chromium: {0}, CEF: {1}, CefSharp: {2}, Environment: {3}", Cef.ChromiumVersion, Cef.CefVersion, Cef.CefSharpVersion, bitness);
+            this.Name = "WallpaperInstance";
+            this.Text = "WallpaperInstance";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.WindowState = FormWindowState.Normal;
+            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
+            this.StartPosition = FormStartPosition.Manual;
 
             IntPtr progman = Window_API_Wrapper.FindWindow("progman", null);
 
@@ -48,6 +41,24 @@ namespace Shadowmask
             }), IntPtr.Zero);
 
             Window_API_Wrapper.SetParent(this.Handle, workerw);
+
+            System.Diagnostics.Debug.Print(this.Location.ToString());
+
+
+            this.SuspendLayout();
+            this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Left - this.Location.X, Screen.PrimaryScreen.WorkingArea.Top - this.Location.Y);
+
+            this.ResumeLayout(false);
+
+            System.Diagnostics.Debug.Print(Screen.PrimaryScreen.Bounds.ToString());
+            System.Diagnostics.Debug.Print(this.Location.ToString());
+            System.Diagnostics.Debug.Print(this.Size.ToString());
+
+            browser = new ChromiumWebBrowser("https://google.com");
+            this.Controls.Add(browser);
+
+            var bitness = Environment.Is64BitProcess ? "x64" : "x86";
+            var version = String.Format("Chromium: {0}, CEF: {1}, CefSharp: {2}, Environment: {3}", Cef.ChromiumVersion, Cef.CefVersion, Cef.CefSharpVersion, bitness);
         }
     }
 }
