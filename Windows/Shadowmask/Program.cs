@@ -1,4 +1,5 @@
 ﻿using CefSharp;
+using CefSharp.SchemeHandler;
 using CefSharp.WinForms;
 using System;
 using System.Collections.Generic;
@@ -22,11 +23,26 @@ namespace Shadowmask
             Cef.EnableHighDPISupport();
 
             var settings = new CefSettings();
+
+            settings.RegisterScheme
+            (
+                new CefCustomScheme
+                {
+                    SchemeName = "LocalFiles",
+                    DomainName = null,
+                    SchemeHandlerFactory = new FolderSchemeHandlerFactory(rootFolder:Environment.CurrentDirectory)
+                }
+            );
+
+            System.Diagnostics.Debug.Print(Environment.CurrentDirectory);
+
             //settings.CefCommandLineArgs.Add("enable-media-stream", "1");
+            settings.CefCommandLineArgs["autoplay-policy"] = "no-user-gesture-required";
+            settings.CefCommandLineArgs.Add("--mute-audio", "1");
 
             Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
 
-            Application.Run(new WallpaperInstance());
+            Application.Run(new TrayClient());
         }
     }
 }
