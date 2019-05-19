@@ -32,7 +32,8 @@ namespace Shadowmask
 
             void ShowConfig(object sender, EventArgs e)
             {
-
+                ConfigurationPane configPane = new ConfigurationPane();
+                configPane.ShowDialog();
             }
 
             void Exit(object sender, EventArgs e)

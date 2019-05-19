@@ -61,20 +61,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TrayClient.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ConfigurationPane.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ConfigurationPane.Designer.cs">
-      <DependentUpon>ConfigurationPane.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WallpaperInstance.cs">
       <SubType>Form</SubType>
     </Compile>
-    <EmbeddedResource Include="ConfigurationPane.resx">
-      <DependentUpon>ConfigurationPane.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -117,10 +111,19 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\StudioLogo.ico" />
+    <None Include="Resources\StudioLogo.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\StudioLogo.bmp" />
+    <None Include="Resources\gear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gear_dark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\question-mark.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\question-mark_dark.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
