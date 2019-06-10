@@ -10,6 +10,8 @@ namespace Shadowmask
 {
     public partial class TrayClient : ApplicationContext
     {
+        private ConfigurationPane configPane;
+
         public TrayClient()
         {
             NotifyIcon notifyIcon = new NotifyIcon();
@@ -28,17 +30,38 @@ namespace Shadowmask
                 }
             );
 
+            notifyIcon.MouseClick += NotifyIcon_MouseClick;
+
             notifyIcon.Visible = true;
 
             void ShowConfig(object sender, EventArgs e)
             {
-                ConfigurationPane configPane = new ConfigurationPane();
-                configPane.ShowDialog();
+                if (configPane != null)
+                {
+                    configPane.Show();
+                    configPane.Activate();
+                }
+                else
+                {
+                    configPane = new ConfigurationPane();
+                    configPane.ShowDialog();
+                }
             }
 
             void Exit(object sender, EventArgs e)
             {
 
+            }
+
+            void NotifyIcon_MouseClick(object sender, MouseEventArgs e)
+            {
+                // Handle Left Clicks
+                if (e.Button == MouseButtons.Left)
+                {
+                    ShowConfig(sender, e);
+                }
+
+                // Else (for right clicks) exhibit default behavior of opening context menu.
             }
         }
     }
