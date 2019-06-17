@@ -1,7 +1,11 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Shadowmask.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="ThemeLayout" Type="System.Collections.Specialized.StringCollection" Scope="User">
+    </Setting>
+    <Setting Name="DefaultContent" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">https://plaza.one/</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

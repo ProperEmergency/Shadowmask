@@ -5,56 +5,69 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Shadowmask
 {
-    public partial class WallpaperInstance : Form
+    public partial class WallpaperEngine : Form
     {
-        private readonly ChromiumWebBrowser browser;
-
-        public WallpaperInstance(String contentAddress)
+        public WallpaperEngine()
         {
-            this.Name = "WallpaperInstance";
-            this.Text = "WallpaperInstance";
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.WindowState = FormWindowState.Normal;
-            this.Size = Screen.PrimaryScreen.WorkingArea.Size;
-            this.StartPosition = FormStartPosition.Manual;
-
-            Window_API_Wrapper.DrawUnderDesktop(this);
-
-
-            this.SuspendLayout();
-            this.Location = new Point(Screen.PrimaryScreen.WorkingArea.Left - this.Location.X, Screen.PrimaryScreen.WorkingArea.Top - this.Location.Y);
-
-            this.ResumeLayout(false);
-
-            System.Diagnostics.Debug.Print(Screen.PrimaryScreen.Bounds.ToString());
-            System.Diagnostics.Debug.Print(this.Location.ToString());
-            System.Diagnostics.Debug.Print(this.Size.ToString());
-
-            browser = new ChromiumWebBrowser(contentAddress)
+            if(Properties.Settings.Default.ThemeLayout == null)
             {
-                Dock = DockStyle.Top
+                for(int displayNumber = 0; displayNumber < Screen.AllScreens.Length; displayNumber++)
+                {
+                    Thread wallpaperThread = new Thread(() => WallpaperInstance(displayNumber, Properties.Settings.Default.DefaultContent));
+                    wallpaperThread.IsBackground = true;
+                    wallpaperThread.Start();
+                }
+            }
+
+            else
+            {
+                System.Collections.Specialized.StringCollection themeLayout = Properties.Settings.Default.ThemeLayout;
+
+                foreach (string monitorLayout in themeLayout)
+                {
+                    string[] formattedLayout =  monitorLayout.Split(';');
+                    Thread wallpaperThread = new Thread(() => WallpaperInstance(Int32.Parse(formattedLayout[0]),formattedLayout[2]));
+                    wallpaperThread.IsBackground = true;
+                    wallpaperThread.Start();
+                }
+            }
+        }
+
+        private void WallpaperInstance(int displayNumber, String contentAddress)
+        {
+            Form wallpaperInstance = new Form();
+
+            wallpaperInstance.Name = "WallpaperInstance";
+            wallpaperInstance.Text = "WallpaperInstance";
+            wallpaperInstance.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            wallpaperInstance.WindowState = FormWindowState.Normal;
+            wallpaperInstance.Size = Screen.AllScreens[displayNumber].Bounds.Size;
+            wallpaperInstance.StartPosition = FormStartPosition.Manual;
+
+            Window_API_Wrapper.DrawUnderDesktop(wallpaperInstance);
+
+            wallpaperInstance.SuspendLayout();
+            wallpaperInstance.Location = new Point(Screen.AllScreens[displayNumber].WorkingArea.Left - this.Location.X, Screen.AllScreens[displayNumber].WorkingArea.Top - this.Location.Y);
+
+            wallpaperInstance.ResumeLayout(false);
+
+            ChromiumWebBrowser browser = new ChromiumWebBrowser(contentAddress)
+            {
+                Dock = DockStyle.Fill,
             };
 
-            this.Controls.Add(browser);
+            wallpaperInstance.Controls.Add(browser);
 
             var bitness = Environment.Is64BitProcess ? "x64" : "x86";
             var version = String.Format("Chromium: {0}, CEF: {1}, CefSharp: {2}, Environment: {3}", Cef.ChromiumVersion, Cef.CefVersion, Cef.CefSharpVersion, bitness);
 
-
-            /*var bitness = Environment.Is64BitProcess ? "x64" : "x86";
-            var version = String.Format("Chromium: {0}, CEF: {1}, CefSharp: {2}, Environment: {3}", Cef.ChromiumVersion, Cef.CefVersion, Cef.CefSharpVersion, bitness);*/
-
-            /*Thread thread1 = new Thread(printCurs);
-            thread1.Start();*/
+            wallpaperInstance.ShowDialog();
         }
 
         private class Window_API_Wrapper
@@ -77,7 +90,7 @@ namespace Shadowmask
             [return: MarshalAs(UnmanagedType.Bool)]
             static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
-            public static void DrawUnderDesktop(WallpaperInstance wallpaperInstance)
+            public static void DrawUnderDesktop(Form wallpaperInstance)
             {
                 IntPtr progman = Window_API_Wrapper.FindWindow("progman", null);
 
@@ -97,11 +110,5 @@ namespace Shadowmask
                 Window_API_Wrapper.SetParent(wallpaperInstance.Handle, workerw);
             }
         }
-
-        /*private void printCurs()
-        {
-
-        }*/
-
     }
 }

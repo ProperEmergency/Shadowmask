@@ -34,11 +34,10 @@ namespace Shadowmask
                 }
             );
 
-            System.Diagnostics.Debug.Print(Environment.CurrentDirectory);
-
             //settings.CefCommandLineArgs.Add("enable-media-stream", "1");
             settings.CefCommandLineArgs["autoplay-policy"] = "no-user-gesture-required";
-            settings.CefCommandLineArgs.Add("--mute-audio", "1");
+            settings.CefCommandLineArgs.Add("--bwsi", "1");
+            //settings.CefCommandLineArgs.Add("--mute-audio", "1");
 
             Cef.Initialize(settings, performDependencyCheck: true, browserProcessHandler: null);
 
