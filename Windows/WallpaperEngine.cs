@@ -87,15 +87,25 @@ namespace Shadowmask
             [return: MarshalAs(UnmanagedType.Bool)]
             static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
+            /*
+             * This method finds (or creates if necessery) a window between the desktop icons and the wallpaper.
+             * It then moves the input form under said window.
+             * 
+             * Based off of the concepts present in Gerald Degeneve's "Draw Behind Desktop Icons in Windows 8+", linked here:
+             * https://www.codeproject.com/Articles/856020/Draw-behind-Desktop-Icons-in-Windows
+             * 
+             */
             public static void DrawUnderDesktop(Form wallpaperInstance)
             {
+                // Find the window handle for the shell.
                 IntPtr progman = Window_API_Wrapper.FindWindow("progman", null);
 
+                // Direct the shell to spawn a worker window behind the desktop icons, this may or may not already be present in Win 8/10.
                 IntPtr zero = IntPtr.Zero;
                 Window_API_Wrapper.SendMessageTimeout(progman, 0x052C, zero, zero, 0x0, 1000, out zero);
 
+                // Find the handle of the new worker window.
                 IntPtr workerw = IntPtr.Zero;
-
                 Window_API_Wrapper.EnumWindows(new Window_API_Wrapper.EnumWindowsProc((tophandle, topparamhandle) =>
                 {
                     IntPtr p = Window_API_Wrapper.FindWindowEx(tophandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
@@ -104,6 +114,7 @@ namespace Shadowmask
                     return true;
                 }), IntPtr.Zero);
 
+                // Set that window as the parent of our form, drawing under the desktop!
                 Window_API_Wrapper.SetParent(wallpaperInstance.Handle, workerw);
             }
         }
