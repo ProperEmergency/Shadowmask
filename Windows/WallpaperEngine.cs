@@ -1,9 +1,6 @@
 ﻿using CefSharp;
 using CefSharp.WinForms;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -17,9 +14,9 @@ namespace Shadowmask
         {
             if(Properties.Settings.Default.ThemeLayout == null)
             {
-                for(int displayNumber = 0; displayNumber < Screen.AllScreens.Length; displayNumber++)
+                foreach(Screen currentScreen in Screen.AllScreens)
                 {
-                    Thread wallpaperThread = new Thread(() => WallpaperInstance(displayNumber, Properties.Settings.Default.DefaultContent));
+                    Thread wallpaperThread = new Thread(() => WallpaperInstance(currentScreen, Properties.Settings.Default.DefaultContent));
                     wallpaperThread.IsBackground = true;
                     wallpaperThread.Start();
                 }
@@ -32,14 +29,14 @@ namespace Shadowmask
                 foreach (string monitorLayout in themeLayout)
                 {
                     string[] formattedLayout =  monitorLayout.Split(';');
-                    Thread wallpaperThread = new Thread(() => WallpaperInstance(Int32.Parse(formattedLayout[0]),formattedLayout[2]));
+                    Thread wallpaperThread = new Thread(() => WallpaperInstance(Screen.AllScreens[Int32.Parse(formattedLayout[0])],formattedLayout[2]));
                     wallpaperThread.IsBackground = true;
                     wallpaperThread.Start();
                 }
             }
         }
 
-        private void WallpaperInstance(int displayNumber, String contentAddress)
+        private void WallpaperInstance(Screen displayScreen, String contentAddress)
         {
             Form wallpaperInstance = new Form();
 
@@ -47,13 +44,13 @@ namespace Shadowmask
             wallpaperInstance.Text = "WallpaperInstance";
             wallpaperInstance.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             wallpaperInstance.WindowState = FormWindowState.Normal;
-            wallpaperInstance.Size = Screen.AllScreens[displayNumber].Bounds.Size;
+            wallpaperInstance.Size = displayScreen.Bounds.Size;
             wallpaperInstance.StartPosition = FormStartPosition.Manual;
 
             Window_API_Wrapper.DrawUnderDesktop(wallpaperInstance);
 
             wallpaperInstance.SuspendLayout();
-            wallpaperInstance.Location = new Point(Screen.AllScreens[displayNumber].WorkingArea.Left - this.Location.X, Screen.AllScreens[displayNumber].WorkingArea.Top - this.Location.Y);
+            wallpaperInstance.Location = new Point(displayScreen.WorkingArea.Left - this.Location.X, displayScreen.WorkingArea.Top - this.Location.Y);
 
             wallpaperInstance.ResumeLayout(false);
 

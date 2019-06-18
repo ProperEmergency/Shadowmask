@@ -25,6 +25,7 @@ namespace Shadowmask.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SettingsManageabilityAttribute(global::System.Configuration.SettingsManageability.Roaming)]
         public global::System.Collections.Specialized.StringCollection ThemeLayout {
             get {
                 return ((global::System.Collections.Specialized.StringCollection)(this["ThemeLayout"]));

@@ -35,6 +35,19 @@ namespace Shadowmask
         {
             this.Size = new Size(Screen.PrimaryScreen.WorkingArea.Width / 3, Screen.PrimaryScreen.WorkingArea.Height / 2);
 
+            ToolTip toolTip = new ToolTip();
+            toolTip.BackColor = Color.White;
+
+            PictureBox progressSpinner = new PictureBox();
+            progressSpinner.Name = "progressSpinner";
+            progressSpinner.Image = Properties.Resources.Spinner;
+            progressSpinner.Size = new Size(48, 48);
+            progressSpinner.SizeMode = PictureBoxSizeMode.StretchImage;
+            progressSpinner.Location = new Point((this.Width / 2 - (progressSpinner.Width / 2)), this.Height - progressSpinner.Height - 50);
+            progressSpinner.Hide();
+
+            this.Controls.Add(progressSpinner);
+
             Button exitButton = new Button();
             exitButton.FlatStyle = FlatStyle.Flat;
             exitButton.BackColor = this.BackColor;
@@ -49,6 +62,7 @@ namespace Shadowmask
             exitButton.Location = new Point((this.Width - exitButton.Width - 10) , 10);
             exitButton.Anchor = (AnchorStyles.Bottom | AnchorStyles.Left);
             exitButton.TabStop = false;
+            toolTip.SetToolTip(exitButton, "Save & Exit");
 
             Button settingsButton = new Button();
             settingsButton.FlatStyle = FlatStyle.Flat;
@@ -64,6 +78,7 @@ namespace Shadowmask
             settingsButton.Location = new Point(10, this.Height - settingsButton.Height - 10);
             settingsButton.Anchor = (AnchorStyles.Bottom | AnchorStyles.Left);
             settingsButton.TabStop = false;
+            toolTip.SetToolTip(settingsButton, "Advanced Settings");
 
             Button aboutButton = new Button();
             aboutButton.FlatStyle = FlatStyle.Flat;
@@ -80,6 +95,7 @@ namespace Shadowmask
             aboutButton.Anchor = (AnchorStyles.Bottom | AnchorStyles.Right);
             aboutButton.Click += AboutButton_HandleClick;
             aboutButton.TabStop = false;
+            toolTip.SetToolTip(aboutButton, "About");
 
             Label instructionsLabel = new Label();
             instructionsLabel.Text = "Please select a screen to configure:";
@@ -110,7 +126,7 @@ namespace Shadowmask
 
             foreach (Screen activeDisplay in Screen.AllScreens)
             {
-                Button monitorButton = new Button();
+                RadioButton monitorButton = new RadioButton();
                 monitorButton.Text = screenCount.ToString();
                 monitorButton.Anchor = AnchorStyles.None;
                 monitorButton.Dock = DockStyle.None;
@@ -119,31 +135,31 @@ namespace Shadowmask
                 monitorButton.FlatAppearance.MouseOverBackColor = System.Drawing.ColorTranslator.FromHtml("#2d89ef");
                 monitorButton.BackColor = Color.LightGray;
                 monitorButton.FlatAppearance.BorderSize = 0;
+                monitorButton.Appearance = Appearance.Button;
+                monitorButton.TextAlign = ContentAlignment.MiddleCenter;
 
                 monitorButton.TabStop = false;
 
 
                 monitorButton.Size = new Size(activeDisplay.WorkingArea.Width / 10, activeDisplay.WorkingArea.Height / 10);
 
-                monitorButton.GotFocus += MonitorButton_GotFocus;
-                monitorButton.LostFocus += MonitorButton_LostFocus;
-                monitorButton.Click += Monitor_Click;
+                monitorButton.CheckedChanged += MonitorButton_Checked;
 
-
-                void MonitorButton_GotFocus(object sender, EventArgs e)
+                void MonitorButton_Checked(object sender, EventArgs e)
                 {
-                    monitorButton.BackColor = System.Drawing.ColorTranslator.FromHtml("#2d89ef");
-                    monitorButton.FlatAppearance.BorderSize = 0;
-                }
+                    if (monitorButton.Checked)
+                    {
+                        monitorButton.BackColor = System.Drawing.ColorTranslator.FromHtml("#2d89ef");
+                        monitorButton.FlatAppearance.BorderSize = 0;
+                    }
+                    else
+                    {
+                        monitorButton.BackColor = Color.LightGray;
+                        monitorButton.FlatAppearance.BorderSize = 0;
+                    }
 
-                void MonitorButton_LostFocus(object sender, EventArgs e)
-                {
-                    monitorButton.BackColor = Color.LightGray;
-                    monitorButton.FlatAppearance.BorderSize = 0;
-                }
+                    Settings_Changed(sender, e);
 
-                void Monitor_Click(object sender, EventArgs e)
-                {
                 }
 
                 monitor_selectionPanel.Controls.Add(monitorButton);
@@ -240,12 +256,7 @@ namespace Shadowmask
             layoutType.Location = new Point((this.Width / 2 - (layoutType.Width / 2)), (layoutLabel.Location.Y + layoutLabel.Height + 10));
             this.Controls.Add(layoutType);
 
-            PictureBox progressSpinner = new PictureBox();
-            progressSpinner.Image = Properties.Resources.Spinner;
-            progressSpinner.Size = new Size(48, 48);
-            progressSpinner.SizeMode = PictureBoxSizeMode.StretchImage;
-            progressSpinner.Location = new Point((this.Width / 2 - (progressSpinner.Width / 2)), (layoutType.Location.Y + layoutType.Height + 10));
-            this.Controls.Add(progressSpinner);
+
 
 
             this.Controls.Add(exitButton);
@@ -253,13 +264,45 @@ namespace Shadowmask
             this.Controls.Add(aboutButton);
             this.Controls.Add(versionLabel);
 
+            void Settings_Changed(object sender, EventArgs e)
+            {
+                progressSpinner.Show();
+
+                foreach (Control formControl in this.Controls.Cast<Control>().Where(c => !(c is Label) && !(c is PictureBox)))
+                {
+                    formControl.Enabled = false;
+                }
+
+                Thread workerThread = new Thread(Validate_Settings);
+                workerThread.Start();
+            }
+
+            void Validate_Settings()
+            {
+                Thread.Sleep(100);
+
+                foreach (Control formControl in this.Controls)
+                {
+                    if(formControl.InvokeRequired)
+                    {
+                        formControl.Invoke((MethodInvoker)delegate { formControl.Enabled = true; });
+                    }
+                }
+
+                if (progressSpinner.InvokeRequired)
+                {
+                    progressSpinner.Invoke((MethodInvoker)delegate { progressSpinner.Hide(); });
+                }
+            }
+
         }
 
 
 
-        private void InitalizeApplicationSettings()
+        private Boolean Test()
         {
-
+            Thread.Sleep(1000);
+            return true;
         }
 
         private void AboutButton_HandleClick(object sender, EventArgs e)
