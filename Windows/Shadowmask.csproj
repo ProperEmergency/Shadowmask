@@ -148,6 +148,12 @@
   <ItemGroup>
     <None Include="Resources\Spinner.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ApplicationLogo.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Shadowmask_Icon_Minimal.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -21,7 +21,7 @@ namespace Shadowmask
             MenuItem configurationButton = new MenuItem("Configure", new EventHandler(ShowConfig));
             MenuItem exitButton = new MenuItem("Exit", new EventHandler(Exit));
 
-            notifyIcon.Icon = Icon.FromHandle(Shadowmask.Properties.Resources.StudioLogo.GetHicon());
+            notifyIcon.Icon = Shadowmask.Properties.Resources.Shadowmask_Icon;
 
             notifyIcon.ContextMenu = new ContextMenu
             (
@@ -45,7 +45,7 @@ namespace Shadowmask
                 }
                 else
                 {
-                    configPane = new ConfigurationPane();
+                    configPane = new ConfigurationPane(wallpaperEngine);
                     configPane.ShowDialog();
                 }
             }
