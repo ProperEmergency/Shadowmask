@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
+using System.Data.SQLite;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +14,9 @@ namespace Shadowmask
 {
     public partial class ConfigurationPane : Form
     {
-        WallpaperEngine wallpaperEngine;
+        // WallpaperEngine instance associated with this configuration pane.
+        private WallpaperEngine wallpaperEngine;
+
         public ConfigurationPane(WallpaperEngine wallpaperEngine)
         {
             this.wallpaperEngine = wallpaperEngine;
@@ -22,37 +28,39 @@ namespace Shadowmask
             this.Opacity = 0.98;
             this.BackColor = ColorTranslator.FromHtml("#1d1d1d");
 
+            // Hides form from taskbar (form is launched via tray client)
             this.ShowInTaskbar = false;
 
+            // Center the form on the user's primary monitor and elevate it above all other windows.
             this.TopMost = true;
             this.WindowState = FormWindowState.Normal;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.Size = new Size(640, 640);
+
+            // Set a starting size for the form, and allow it to auto-size itss controls.
+            this.MinimumSize = new Size(640, 440);
+            this.MaximumSize = new Size(840, 640);
+            this.AutoSize = true;
 
             InitializeMainMenu();
         }
 
         private void InitializeMainMenu()
         {
-            /*
-             * Initialize Controls
-             * 
-             */
+            #region Initialize Controls
 
             // About Button - Links to further reading about Shadowmask.
             Button aboutButton = new Button();
-            aboutButton.FlatStyle = FlatStyle.Flat;
+            aboutButton.Anchor = (AnchorStyles.Bottom | AnchorStyles.Right);
+            aboutButton.AutoSize = false;
             aboutButton.BackColor = this.BackColor;
             aboutButton.BackgroundImage = Properties.Resources.QuestionMark_Dark;
             aboutButton.BackgroundImageLayout = ImageLayout.Center;
-            aboutButton.Size = aboutButton.BackgroundImage.Size;
-            aboutButton.AutoSize = false;
             aboutButton.Cursor = Cursors.Hand;
             aboutButton.FlatAppearance.CheckedBackColor = aboutButton.BackColor;
             aboutButton.FlatAppearance.MouseOverBackColor = aboutButton.BackColor;
             aboutButton.FlatAppearance.BorderSize = 0;
-            aboutButton.Anchor = (AnchorStyles.Bottom | AnchorStyles.Right);
-            aboutButton.Click += AboutButton_HandleClick;
+            aboutButton.FlatStyle = FlatStyle.Flat;
+            aboutButton.Size = aboutButton.BackgroundImage.Size;
             aboutButton.TabStop = false;
 
             // Activity Indicator - Displays if the configuration application is performing sensative operations (writing to files, lengthy computions).
@@ -62,19 +70,41 @@ namespace Shadowmask
             activityIndicator.Size = new Size(48, 48);
             activityIndicator.SizeMode = PictureBoxSizeMode.StretchImage;
 
+            TextBox addressIntake = new TextBox();
+            addressIntake.Multiline = true;
+            addressIntake.MinimumSize = new Size(this.Width / 3, 24);
+            addressIntake.Multiline = false;
+            addressIntake.Text = "https://example.com";
+            addressIntake.BorderStyle = BorderStyle.FixedSingle;
+            addressIntake.TextAlign = HorizontalAlignment.Center;
+            addressIntake.TabStop = false;
+            addressIntake.Enabled = true;
+            addressIntake.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            addressIntake.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            addressIntake.AutoCompleteCustomSource = Read_Chrome__Address_History();
+
             // Content Type Dropdown - Allows the user to select the type of wallpaper source material.
             ComboBox contentType = new ComboBox();
+            contentType.DataSource = new BindingSource(new Dictionary<string,string>
+            {
+                { "None", "" },
+                { "Image", "Image Files (*.PNG;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF" },
+                //{ "Video", "Video Files (*.MP4)|*.MP4" },
+                { "Webpage", "" },
+                { "YouTube Video", "" }
+            }, null);
+            contentType.DisplayMember = "Key";
             contentType.DropDownStyle = ComboBoxStyle.DropDownList;
             contentType.FlatStyle = FlatStyle.Flat;
-            contentType.Items.AddRange(new string[] { "None" , "Image" , "Video File" , "Webpage" , "YouTube Video" });
-            contentType.SelectedIndex = 0;
+            contentType.ValueMember = "Value";
 
             // Content Type Dropdown - Instruction Label
             Label contentType_Label = new Label();
-            contentType_Label.Text = "Please select the type of content you wish to display.";
-            contentType_Label.ForeColor = Color.White;
-            contentType_Label.AutoSize = true;
             contentType_Label.Anchor = AnchorStyles.Top;
+            contentType_Label.AutoSize = true;
+            contentType_Label.ForeColor = Color.White;
+            contentType.TabStop = false;
+            contentType_Label.Text = "Please select the type of content you wish to display.";
             contentType_Label.TextAlign = ContentAlignment.MiddleCenter;
 
             // Exit Button - Closes the configuration pane (not the entire application).
@@ -92,80 +122,46 @@ namespace Shadowmask
             exitButton.Size = exitButton.BackgroundImage.Size;
             exitButton.TabStop = false;
 
-            Button settingsButton = new Button();
-            settingsButton.FlatStyle = FlatStyle.Flat;
-            settingsButton.BackColor = this.BackColor;
-            settingsButton.BackgroundImage = Properties.Resources.Gear_Dark;
-            settingsButton.BackgroundImageLayout = ImageLayout.Center;
-            settingsButton.Size = settingsButton.BackgroundImage.Size;
-            settingsButton.AutoSize = false;
-            settingsButton.Cursor = Cursors.Hand;
-            settingsButton.FlatAppearance.CheckedBackColor = settingsButton.BackColor;
-            settingsButton.FlatAppearance.MouseOverBackColor = settingsButton.BackColor;
-            settingsButton.FlatAppearance.BorderSize = 0;
-            settingsButton.Anchor = (AnchorStyles.Bottom | AnchorStyles.Left);
-            settingsButton.TabStop = false;
+            // File Selection Dialog - A explorer dialog that allows the user to input images,videos,etc as wallpaper content.
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Multiselect = false;
+            fileDialog.Title = "Please select the desired wallpaper source...";
 
-            Label instructionsLabel = new Label();
-            instructionsLabel.Text = "Please select a screen to configure:";
-            instructionsLabel.ForeColor = Color.White;
-            instructionsLabel.AutoSize = true;
-            instructionsLabel.Anchor = AnchorStyles.Top;
-            instructionsLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // File Selection Button - Launches the File Selection Dialog.
+            Button fileIntake = new Button();
+            fileIntake.AutoSize = false;
+            fileIntake.BackColor = Color.LightGray;
+            fileIntake.FlatAppearance.BorderSize = 0;
+            fileIntake.FlatStyle = FlatStyle.Flat;
+            fileIntake.TabStop = false;
+            fileIntake.Text = "No File";
+            fileIntake.TextAlign = ContentAlignment.MiddleCenter;
 
-
-            Label versionLabel = new Label();
-            versionLabel.Text = ProductName + " - " + ProductVersion;
-            versionLabel.ForeColor = Color.White;
-            versionLabel.AutoSize = false;
-            versionLabel.Anchor = AnchorStyles.Bottom;
-            versionLabel.Dock = DockStyle.Bottom;
-            versionLabel.TextAlign = ContentAlignment.MiddleCenter;
-
-            FlowLayoutPanel monitor_selectionPanel = new FlowLayoutPanel();
-            monitor_selectionPanel.BackColor = this.BackColor;
-            monitor_selectionPanel.Anchor = AnchorStyles.None;
-            monitor_selectionPanel.AutoSize = true;
-            monitor_selectionPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-
-
+            // Content Selection Instructions - Assist user with content selection.
             Label intakeLabel = new Label();
-            intakeLabel.Text = "Please select either the URL hosting the content, or the content's source file";
-            intakeLabel.ForeColor = Color.White;
-            intakeLabel.AutoSize = true;
             intakeLabel.Anchor = AnchorStyles.Top;
+            intakeLabel.AutoSize = true;
+            intakeLabel.ForeColor = Color.White;
+            intakeLabel.Text = "Please select either the URL hosting the content, or the content's source file";
             intakeLabel.TextAlign = ContentAlignment.MiddleCenter;
 
-            TextBox urlIntake = new TextBox();
-            urlIntake.Multiline = true;
-            urlIntake.MinimumSize = new Size(this.Width / 3, 24);
-            urlIntake.Multiline = false;
-            urlIntake.Text = "https://example.com";
-            urlIntake.BorderStyle = BorderStyle.FixedSingle;
-            urlIntake.TextAlign = HorizontalAlignment.Center;
-            urlIntake.TabStop = false;
-            urlIntake.Enabled = true;
+            // Screen Selection Instructions - Assist user with monitor selection.
+            Label instructionsLabel = new Label();
+            instructionsLabel.Anchor = AnchorStyles.Top;
+            instructionsLabel.AutoSize = true;
+            instructionsLabel.ForeColor = Color.White;
+            instructionsLabel.Text = "Please select a screen to configure:";
+            instructionsLabel.TextAlign = ContentAlignment.MiddleCenter;
 
-            Button fileIntake = new Button();
-            fileIntake.Text = "No File Chosen";
-            fileIntake.AutoSize = true;
-            fileIntake.BackColor = Color.LightGray;
-            fileIntake.FlatStyle = FlatStyle.Flat;
-            fileIntake.FlatAppearance.BorderSize = 0;
-            fileIntake.TextAlign = ContentAlignment.MiddleCenter;
-            fileIntake.TabStop = false;
-            fileIntake.Enabled = true;
-
-
+            // Content Layout Selection - Instructions
             Label layoutLabel = new Label();
-            layoutLabel.Text = "Please select a display layout";
-            //instructionsLabel.Font = new Font("Segoe UI", 12);
-            layoutLabel.ForeColor = Color.White;
-            layoutLabel.AutoSize = true;
             layoutLabel.Anchor = AnchorStyles.Top;
+            layoutLabel.AutoSize = true;
+            layoutLabel.ForeColor = Color.White;
+            layoutLabel.Text = "Please select a display layout";
             layoutLabel.TextAlign = ContentAlignment.MiddleCenter;
 
-
+            // Content Layout Dropdown - Allows the user to select how their content will be displayed (fill, tile, etc).
             ComboBox layoutType = new ComboBox();
             layoutType.DropDownStyle = ComboBoxStyle.DropDownList;
             layoutType.FlatStyle = FlatStyle.Flat;
@@ -173,29 +169,29 @@ namespace Shadowmask
             layoutType.SelectedIndex = 0;
             layoutType.TabStop = false;
 
-            layoutType.SelectedIndexChanged += (sender, e) => Settings_Changed(sender, e);
-            this.Controls.Add(layoutType);
+            // Monitor Selection - Allows the user to select a monitor to adjust wallpaper settings on. Dynamically built based on currently attached monitors.
+            FlowLayoutPanel monitorSelection_Panel = new FlowLayoutPanel();
+            monitorSelection_Panel.Anchor = AnchorStyles.None;
+            monitorSelection_Panel.AutoSize = true;
+            monitorSelection_Panel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            monitorSelection_Panel.BackColor = this.BackColor;
 
             int screenCount = 1;
-
             foreach (Screen activeDisplay in Screen.AllScreens)
             {
                 RadioButton monitorButton = new RadioButton();
-                monitorButton.Text = screenCount.ToString();
                 monitorButton.Anchor = AnchorStyles.None;
-                monitorButton.Dock = DockStyle.None;
-                monitorButton.Cursor = Cursors.Hand;
-                monitorButton.FlatStyle = FlatStyle.Flat;
-                monitorButton.FlatAppearance.MouseOverBackColor = System.Drawing.ColorTranslator.FromHtml("#2d89ef");
-                monitorButton.BackColor = Color.LightGray;
-                monitorButton.FlatAppearance.BorderSize = 0;
                 monitorButton.Appearance = Appearance.Button;
-                monitorButton.TextAlign = ContentAlignment.MiddleCenter;
-
-                monitorButton.TabStop = false;
-
-
+                monitorButton.BackColor = Color.LightGray;
+                monitorButton.Cursor = Cursors.Hand;
+                monitorButton.Dock = DockStyle.None;
+                monitorButton.FlatAppearance.BorderSize = 0;
+                monitorButton.FlatAppearance.MouseOverBackColor = System.Drawing.ColorTranslator.FromHtml("#2d89ef");
+                monitorButton.FlatStyle = FlatStyle.Flat;
                 monitorButton.Size = new Size(activeDisplay.WorkingArea.Width / 10, activeDisplay.WorkingArea.Height / 10);
+                monitorButton.TabStop = true;
+                monitorButton.Text = screenCount.ToString();
+                monitorButton.TextAlign = ContentAlignment.MiddleCenter;
 
                 monitorButton.CheckedChanged += MonitorButton_Checked;
 
@@ -215,43 +211,79 @@ namespace Shadowmask
                     Settings_Changed(sender, e, false, true);
                 }
 
-                monitor_selectionPanel.Controls.Add(monitorButton);
+                monitorSelection_Panel.Controls.Add(monitorButton);
 
                 screenCount++;
             }
 
-            // ToolTip
+            // Advanced Settings Button - Brings the user to an advanced configuration window.
+            Button settingsButton = new Button();
+            settingsButton.Anchor = (AnchorStyles.Bottom | AnchorStyles.Left);
+            settingsButton.AutoSize = false;
+            settingsButton.BackColor = this.BackColor;
+            settingsButton.BackgroundImage = Properties.Resources.Gear_Dark;
+            settingsButton.BackgroundImageLayout = ImageLayout.Center;
+            settingsButton.Cursor = Cursors.Hand;
+            settingsButton.FlatAppearance.BorderSize = 0;
+            settingsButton.FlatAppearance.CheckedBackColor = settingsButton.BackColor;
+            settingsButton.FlatAppearance.MouseOverBackColor = settingsButton.BackColor;
+            settingsButton.FlatStyle = FlatStyle.Flat;
+            settingsButton.Size = settingsButton.BackgroundImage.Size;
+            settingsButton.TabStop = false;
+
+            // Version Label  - Display's the application's current version.
+            Label versionLabel = new Label();
+            versionLabel.Anchor = AnchorStyles.Bottom;
+            versionLabel.AutoSize = false;
+            versionLabel.Dock = DockStyle.Bottom;
+            versionLabel.ForeColor = Color.White;
+            versionLabel.Text = ProductName + " - " + ProductVersion;
+            versionLabel.TextAlign = ContentAlignment.MiddleCenter;
+
+            // ToolTip - Enables control tooltip functionality.
             ToolTip toolTip = new ToolTip();
             toolTip.BackColor = Color.White;
+            #endregion
 
-            this.Controls.Add(activityIndicator);
-            this.Controls.Add(exitButton);
-            this.Controls.Add(settingsButton);
+            #region Add Controls to Form
+
             this.Controls.Add(aboutButton);
-            this.Controls.Add(versionLabel);
-            this.Controls.Add(monitor_selectionPanel);
-            this.Controls.Add(contentType_Label);
+            this.Controls.Add(activityIndicator);
+            this.Controls.Add(addressIntake);
             this.Controls.Add(contentType);
+            this.Controls.Add(contentType_Label);
+            this.Controls.Add(exitButton);
             this.Controls.Add(intakeLabel);
-            this.Controls.Add(urlIntake);
+            this.Controls.Add(instructionsLabel);
             this.Controls.Add(fileIntake);
             this.Controls.Add(layoutLabel);
-            this.Controls.Add(instructionsLabel);
+            this.Controls.Add(layoutType);
+            this.Controls.Add(monitorSelection_Panel);
+            this.Controls.Add(settingsButton);
+            this.Controls.Add(versionLabel);
 
+            #endregion
+
+            #region Align Controls on Form
+
+            // Independent Controls
+            aboutButton.Location = new Point(this.Width - aboutButton.Width - 10, this.Height - aboutButton.Height - 10);
+            activityIndicator.Location = new Point((this.Width / 2 - (activityIndicator.Width / 2)), this.Height - activityIndicator.Height - 50);
             exitButton.Location = new Point((this.Width - exitButton.Width - 10), 10);
-            monitor_selectionPanel.Location = new Point((this.Width / 2 - (monitor_selectionPanel.Width / 2)), (instructionsLabel.Location.Y + instructionsLabel.Height + 10));
+            settingsButton.Location = new Point(10, this.Height - settingsButton.Height - 10);
+            versionLabel.Location = new Point((this.Width / 2) - (versionLabel.Width / 2), this.Height - versionLabel.Height);
+            
+            // Location Dependent Controls
             instructionsLabel.Location = new Point((this.Width / 2) - (instructionsLabel.Width / 2), instructionsLabel.Height + exitButton.Height);
-            contentType_Label.Location = new Point((this.Width / 2) - (contentType_Label.Width / 2), (monitor_selectionPanel.Location.Y + monitor_selectionPanel.Height + 20));
+            monitorSelection_Panel.Location = new Point((this.Width / 2 - (monitorSelection_Panel.Width / 2)), (instructionsLabel.Location.Y + instructionsLabel.Height + 10));
+            contentType_Label.Location = new Point((this.Width / 2) - (contentType_Label.Width / 2), (monitorSelection_Panel.Location.Y + monitorSelection_Panel.Height + 20));
             contentType.Location = new Point((this.Width / 2 - (contentType.Width / 2)), (contentType_Label.Location.Y + contentType_Label.Height + 10));
             intakeLabel.Location = new Point((this.Width / 2) - (intakeLabel.Width / 2), (contentType.Location.Y + contentType.Height + 20));
-            urlIntake.Location = new Point(intakeLabel.Location.X + 5, (intakeLabel.Location.Y + intakeLabel.Height + 15));
+            addressIntake.Location = new Point(intakeLabel.Location.X + 5, (intakeLabel.Location.Y + intakeLabel.Height + 15));
             fileIntake.Location = new Point(intakeLabel.Location.X + intakeLabel.Width - fileIntake.Width - 5, (intakeLabel.Location.Y + intakeLabel.Height + 15));
             layoutLabel.Location = new Point((this.Width / 2) - (layoutLabel.Width / 2), (fileIntake.Location.Y + fileIntake.Height + 10));
             layoutType.Location = new Point((this.Width / 2 - (layoutType.Width / 2)), (layoutLabel.Location.Y + layoutLabel.Height + 10));
-            settingsButton.Location = new Point(10, this.Height - settingsButton.Height - 10);
-            activityIndicator.Location = new Point((this.Width / 2 - (activityIndicator.Width / 2)), this.Height - activityIndicator.Height - 50);
-            versionLabel.Location = new Point((this.Width / 2) - (versionLabel.Width / 2), this.Height - versionLabel.Height);
-            aboutButton.Location = new Point(this.Width - aboutButton.Width - 10, this.Height - aboutButton.Height - 10);
+            #endregion
 
 
 
@@ -259,31 +291,95 @@ namespace Shadowmask
 
             void UrlIntake_LostFocus(object sender, EventArgs e)
             {
-                if(urlIntake.Modified)
+                if(addressIntake.Modified)
                 {
-                    urlIntake.Modified = false;
+                    addressIntake.Modified = false;
                     Settings_Changed(sender, e);
                 }
             }
 
 
+            AutoCompleteStringCollection Read_Chrome__Address_History()
+            {
+                AutoCompleteStringCollection urlCollection = new AutoCompleteStringCollection();
+
+                try
+                {
+                    File.Copy(@"C:\Users\Josh\AppData\Local\Google\Chrome\User Data\Default\History", Path.GetTempPath() + "Chrome_URL_Entry_History.db", true);
+
+                    string queryString = "SELECT url FROM urls WHERE typed_count > 0;";
+                    string connectionString = "Data Source=" + Path.GetTempPath() + "Chrome_URL_Entry_History.db" + "; Version=3";
+
+                    using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+                    {
+                        SQLiteCommand command = new SQLiteCommand(queryString, connection);
+
+                        connection.Open();
+                        SQLiteDataReader reader = command.ExecuteReader();
+
+                        try
+                        {
+                            while (reader.Read())
+                            {
+                                urlCollection.Add(reader.GetString(0));
+                            }
+                        }
+                        finally
+                        {
+                            reader.Close();
+                        }
+
+                        connection.Close();
+                    }
+                }
+                catch(Exception)
+                {
+                    //
+                }
+                return urlCollection;
+            }
 
 
 
-
-
-
+            fileIntake.Click += FileIntake_Click;
+            layoutType.SelectedIndexChanged += (sender, e) => Settings_Changed(sender, e);
             contentType.SelectedIndexChanged += (sender, e) => Settings_Changed(sender, e);
-            urlIntake.LostFocus += UrlIntake_LostFocus;
+            addressIntake.LostFocus += UrlIntake_LostFocus;
 
             exitButton.Click += ExitButton_Click;
 
             toolTip.SetToolTip(exitButton, "Save & Exit");
             toolTip.SetToolTip(settingsButton, "Advanced Settings");
 
-
+            aboutButton.Click += AboutButton_HandleClick;
 
             activityIndicator.Hide();
+
+            void AboutButton_HandleClick(object sender, EventArgs e)
+            {
+                System.Diagnostics.Process.Start("https://github.com/ProperEmergency/Shadowmask");
+            }
+
+            void ExitButton_Click(object sender, EventArgs e)
+            {
+                this.Hide();
+                Thread workerThread = new Thread(wallpaperEngine.Change_Displayed_Content);
+                workerThread.Start();
+            }
+
+            void FileIntake_Click(object sender, EventArgs e)
+            {
+                fileDialog.Filter = contentType.SelectedValue.ToString();
+
+                if (fileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    TemplateEngine templateEngine = new TemplateEngine();
+
+                    fileIntake.Text = templateEngine.Build_Custom_Template(fileDialog.FileName, fileDialog.SafeFileName, contentType.Text, layoutType.Text);
+
+                    Settings_Changed(sender, e);
+                }
+            }
 
             void Settings_Changed(object sender, EventArgs e, bool writeRequired = true, bool readRequired = false)
             {
@@ -309,7 +405,7 @@ namespace Shadowmask
 
             void Read_Settings()
             {
-                var selectedMonitor = monitor_selectionPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
+                var selectedMonitor = monitorSelection_Panel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
                 int monitorIndex = Int32.Parse(selectedMonitor.Text) - 1;
 
                 String[] currentTheme;
@@ -327,13 +423,13 @@ namespace Shadowmask
                 contentType.Invoke((MethodInvoker)delegate { contentType.Text = currentTheme[1]; });
                 if (currentTheme[1] == "Webpage")
                 {
-                    urlIntake.Invoke((MethodInvoker)delegate { urlIntake.Text = currentTheme[2]; });
-                    fileIntake.Invoke((MethodInvoker)delegate { fileIntake.ResetText(); fileIntake.Enabled = false; });
+                    addressIntake.Invoke((MethodInvoker)delegate { addressIntake.Text = currentTheme[2]; });
+                    fileIntake.Invoke((MethodInvoker)delegate { fileIntake.Text = "No File"; fileIntake.Enabled = false; });
                 }
                 else
                 {
                     fileIntake.Invoke((MethodInvoker)delegate { fileIntake.Text = currentTheme[2]; });
-                    urlIntake.Invoke((MethodInvoker)delegate { urlIntake.Clear(); urlIntake.Enabled = false; });
+                    addressIntake.Invoke((MethodInvoker)delegate { addressIntake.Clear(); addressIntake.Enabled = false; });
                 }
 
                 Restore_GUI();
@@ -342,7 +438,7 @@ namespace Shadowmask
 
             void Write_Settings()
             {
-                var selectedMonitor = monitor_selectionPanel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
+                var selectedMonitor = monitorSelection_Panel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
                 int monitorIndex = Int32.Parse(selectedMonitor.Text) - 1;
 
                 string displayTheme = "";
@@ -354,7 +450,7 @@ namespace Shadowmask
                 contentType.Invoke((MethodInvoker)delegate { type = contentType.Text; });
                 layoutType.Invoke((MethodInvoker)delegate { layout = layoutType.Text; });
 
-                if (type == "Webpage"){content = urlIntake.Text;}
+                if (type == "Webpage"){content = addressIntake.Text;}
                 else{content = fileIntake.Text;}
 
                 displayTheme = selectedMonitor.Text + ";" + type + ";" + content + ";" + layout;
@@ -367,7 +463,7 @@ namespace Shadowmask
                     }
                     Properties.Settings.Default.ThemeLayout.Insert(monitorIndex, displayTheme);
                 }
-                catch(NullReferenceException nullException)
+                catch(NullReferenceException)
                 {
                     Properties.Settings.Default.ThemeLayout = new System.Collections.Specialized.StringCollection();
                     Properties.Settings.Default.ThemeLayout.Add(displayTheme);
@@ -380,9 +476,21 @@ namespace Shadowmask
 
             void Restore_GUI()
             {
-                foreach (Control formControl in this.Controls)
+                if (contentType.InvokeRequired)
                 {
-                    if (formControl.InvokeRequired)
+                    string currentType = "";
+                    contentType.Invoke((MethodInvoker)delegate { currentType = contentType.Text; });
+
+                    if(currentType == "Webpage")
+                    {
+                        addressIntake.Invoke((MethodInvoker)delegate { addressIntake.Enabled = true; });
+                    }
+                    else
+                    {
+                        fileIntake.Invoke((MethodInvoker)delegate { fileIntake.Enabled = true; });
+                    }
+
+                    foreach (Control formControl in this.Controls.Cast<Control>().Where(c => (c != addressIntake) && (c != fileIntake)))
                     {
                         formControl.Invoke((MethodInvoker)delegate { formControl.Enabled = true; });
                     }
@@ -393,20 +501,6 @@ namespace Shadowmask
                     activityIndicator.Invoke((MethodInvoker)delegate { activityIndicator.Hide(); });
                 }
             }
-
         }
-
-        private void ExitButton_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-            Thread workerThread = new Thread(wallpaperEngine.Change_Displayed_Content);
-            workerThread.Start();
-        }
-
-        private void AboutButton_HandleClick(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://github.com/ProperEmergency/Shadowmask");
-        }
-
     }
 }
