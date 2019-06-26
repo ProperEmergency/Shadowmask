@@ -22,13 +22,13 @@
         "Entry"
         {
         "MsmKey" = "8:_138F256A9EF4491136C0A994AE6605C6"
-        "OwnerKey" = "8:_BB2B318D54EA455CABFD0B1140039A48"
+        "OwnerKey" = "8:_4C4E99705E0944399DD88F6D8F796A28"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_138F256A9EF4491136C0A994AE6605C6"
-        "OwnerKey" = "8:_4C4E99705E0944399DD88F6D8F796A28"
+        "OwnerKey" = "8:_BB2B318D54EA455CABFD0B1140039A48"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -106,7 +106,7 @@
         "Entry"
         {
         "MsmKey" = "8:_A8F28D83EB4520CCEF2B4BD5FDD6553A"
-        "OwnerKey" = "8:_4DA2DA8403D841CD8FF19D8EADB62E69"
+        "OwnerKey" = "8:_4C4E99705E0944399DD88F6D8F796A28"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -118,7 +118,7 @@
         "Entry"
         {
         "MsmKey" = "8:_A8F28D83EB4520CCEF2B4BD5FDD6553A"
-        "OwnerKey" = "8:_4C4E99705E0944399DD88F6D8F796A28"
+        "OwnerKey" = "8:_4DA2DA8403D841CD8FF19D8EADB62E69"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -148,13 +148,19 @@
         "Entry"
         {
         "MsmKey" = "8:_C8198499E60A519C549D05348E27D09D"
-        "OwnerKey" = "8:_0EB56B45FCC0484D86F6EDFEE923BB06"
+        "OwnerKey" = "8:_4DA2DA8403D841CD8FF19D8EADB62E69"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_C8198499E60A519C549D05348E27D09D"
-        "OwnerKey" = "8:_4DA2DA8403D841CD8FF19D8EADB62E69"
+        "OwnerKey" = "8:_0EB56B45FCC0484D86F6EDFEE923BB06"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D1A22014FDA868EA8F65C02D9757D519"
+        "OwnerKey" = "8:_A67938F6216FC12667DE604D28794016"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -179,12 +185,6 @@
         {
         "MsmKey" = "8:_D1A22014FDA868EA8F65C02D9757D519"
         "OwnerKey" = "8:_38169EFC0E6641278421BD4000382249"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D1A22014FDA868EA8F65C02D9757D519"
-        "OwnerKey" = "8:_A67938F6216FC12667DE604D28794016"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -213,6 +213,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F14F5B3D58EA4E00BDD1A44BECF99D61"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F5C01C6FEFBD4FB38C988D8DB479901E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -226,7 +232,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D1A22014FDA868EA8F65C02D9757D519"
+        "OwnerKey" = "8:_38169EFC0E6641278421BD4000382249"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -238,7 +244,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4C4E99705E0944399DD88F6D8F796A28"
+        "OwnerKey" = "8:_BB2B318D54EA455CABFD0B1140039A48"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -250,25 +256,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A8F28D83EB4520CCEF2B4BD5FDD6553A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_0EB56B45FCC0484D86F6EDFEE923BB06"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_BB2B318D54EA455CABFD0B1140039A48"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_138F256A9EF4491136C0A994AE6605C6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -280,13 +268,31 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_38169EFC0E6641278421BD4000382249"
+        "OwnerKey" = "8:_4C4E99705E0944399DD88F6D8F796A28"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A8F28D83EB4520CCEF2B4BD5FDD6553A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_138F256A9EF4491136C0A994AE6605C6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_A67938F6216FC12667DE604D28794016"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_D1A22014FDA868EA8F65C02D9757D519"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -314,6 +320,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.6.1"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.6.1 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.6.1"
+                    }
+                }
             }
         }
         "Release"
@@ -997,6 +1011,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F14F5B3D58EA4E00BDD1A44BECF99D61"
+            {
+            "SourcePath" = "8:..\\..\\Windows\\Resources\\Shadowmask_Icon_Minimal.ico"
+            "TargetName" = "8:Shadowmask_Icon_Minimal.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_E39BBBF3928247598B6C37905495ADE3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F5C01C6FEFBD4FB38C988D8DB479901E"
             {
             "SourcePath" = "8:..\\..\\Windows\\bin\\x64\\Release\\chrome_elf.dll"
@@ -1116,7 +1150,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Shadowmask"
         "ProductCode" = "8:{FD031CE7-8105-42BF-BF42-4DAB29B25077}"
-        "PackageCode" = "8:{363A9874-68B1-4C11-A6FE-0CB383FE543B}"
+        "PackageCode" = "8:{E612C432-A2C3-4CA6-9193-D24124C20FB1}"
         "UpgradeCode" = "8:{AC8B253A-364B-4A8B-9EFB-3562A7065B4B}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
@@ -1247,7 +1281,7 @@
             "Target" = "8:_4DA2DA8403D841CD8FF19D8EADB62E69"
             "Folder" = "8:_01579EA185704080822A5248169257BB"
             "WorkingFolder" = "8:_E39BBBF3928247598B6C37905495ADE3"
-            "Icon" = "8:"
+            "Icon" = "8:_F14F5B3D58EA4E00BDD1A44BECF99D61"
             "Feature" = "8:"
             }
         }
