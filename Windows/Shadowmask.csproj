@@ -51,8 +51,7 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>Shadowmask.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
@@ -94,6 +93,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Shadowmask_Key.pfx</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Shadowmask_Icon_Minimal.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -198,9 +200,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Spinner.gif" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\ApplicationLogo.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shadowmask_Icon_Minimal.ico" />

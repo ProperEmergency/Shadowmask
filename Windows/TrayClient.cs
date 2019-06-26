@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace Shadowmask
@@ -46,7 +47,10 @@ namespace Shadowmask
 
             void Exit(object sender, EventArgs e)
             {
+                Process.GetProcessesByName("Explorer")[0].Kill();
+                Process.Start("Explorer.exe");
 
+                Application.Exit();
             }
 
             void NotifyIcon_MouseClick(object sender, MouseEventArgs e)

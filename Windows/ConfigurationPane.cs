@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Data.SQLite;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,7 +12,6 @@ namespace Shadowmask
 {
     public partial class ConfigurationPane : Form
     {
-        // WallpaperEngine instance associated with this configuration pane.
         private WallpaperEngine wallpaperEngine;
 
         public ConfigurationPane(WallpaperEngine wallpaperEngine)
@@ -27,16 +24,10 @@ namespace Shadowmask
             this.FormBorderStyle = FormBorderStyle.None;
             this.Opacity = 0.98;
             this.BackColor = ColorTranslator.FromHtml("#1d1d1d");
-
-            // Hides form from taskbar (form is launched via tray client)
             this.ShowInTaskbar = false;
-
-            // Center the form on the user's primary monitor and elevate it above all other windows.
             this.TopMost = true;
             this.WindowState = FormWindowState.Normal;
             this.StartPosition = FormStartPosition.CenterScreen;
-
-            // Set a starting size for the form, and allow it to auto-size itss controls.
             this.MinimumSize = new Size(640, 440);
             this.MaximumSize = new Size(840, 640);
             this.AutoSize = true;
@@ -69,6 +60,7 @@ namespace Shadowmask
             activityIndicator.Name = "progressSpinner";
             activityIndicator.Size = new Size(48, 48);
             activityIndicator.SizeMode = PictureBoxSizeMode.StretchImage;
+            activityIndicator.Hide();
 
             TextBox addressIntake = new TextBox();
             addressIntake.Multiline = true;
@@ -81,17 +73,16 @@ namespace Shadowmask
             addressIntake.Enabled = true;
             addressIntake.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             addressIntake.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            addressIntake.AutoCompleteCustomSource = Read_Chrome__Address_History();
+            addressIntake.AutoCompleteCustomSource = Pull_Chrome__Address_History();
 
             // Content Type Dropdown - Allows the user to select the type of wallpaper source material.
             ComboBox contentType = new ComboBox();
             contentType.DataSource = new BindingSource(new Dictionary<string,string>
             {
-                { "None", "" },
                 { "Image", "Image Files (*.PNG;*.JPG;*.GIF)|*.BMP;*.JPG;*.GIF" },
                 //{ "Video", "Video Files (*.MP4)|*.MP4" },
                 { "Webpage", "" },
-                { "YouTube Video", "" }
+                //{ "YouTube Video", "" }
             }, null);
             contentType.DisplayMember = "Key";
             contentType.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -243,6 +234,8 @@ namespace Shadowmask
             // ToolTip - Enables control tooltip functionality.
             ToolTip toolTip = new ToolTip();
             toolTip.BackColor = Color.White;
+            toolTip.SetToolTip(exitButton, "Save & Exit");
+            toolTip.SetToolTip(settingsButton, "Advanced Settings");
             #endregion
 
             #region Add Controls to Form
@@ -285,27 +278,65 @@ namespace Shadowmask
             layoutType.Location = new Point((this.Width / 2 - (layoutType.Width / 2)), (layoutLabel.Location.Y + layoutLabel.Height + 10));
             #endregion
 
-
-
-
-
-            void UrlIntake_LostFocus(object sender, EventArgs e)
+            #region Handle Control Actions
+            /* Opens the project github on the default system web browser.
+             * Triggered by a click to the "About" Button. */
+            void AboutButton_Click(object sender, EventArgs e)
             {
-                if(addressIntake.Modified)
+                System.Diagnostics.Process.Start("https://github.com/ProperEmergency/Shadowmask");
+            }
+            aboutButton.Click += AboutButton_Click;
+
+            /* Detects if a url was entered or modified, and triggers a Settings_Changed event.
+             * Triggered by loss of focus to the address bar.*/
+            void AddressIntake_LostFocus(object sender, EventArgs e)
+            {
+                if (addressIntake.Modified)
                 {
                     addressIntake.Modified = false;
                     Settings_Changed(sender, e);
                 }
             }
+            addressIntake.LostFocus += AddressIntake_LostFocus;
 
 
-            AutoCompleteStringCollection Read_Chrome__Address_History()
+            /* Hides the configuration pane, and refreshes the wallpaper engine.
+             * Triggered by a click to the exit button */
+            void ExitButton_Click(object sender, EventArgs e)
+            {
+                
+                this.Hide();
+                Task.Run(() => wallpaperEngine.Change_Displayed_Content());
+            }
+            exitButton.Click += ExitButton_Click;
+
+            /* Opens a file selection dialog.
+             * Once a file is selected, a wallpaper template is built and the Settings_Changed event triggered.
+             * Triggered by a click to the file selection button.*/
+            void FileIntake_Click(object sender, EventArgs e)
+            {
+                fileDialog.Filter = contentType.SelectedValue.ToString();
+
+                if (fileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    TemplateEngine templateEngine = new TemplateEngine();
+
+                    fileIntake.Text = templateEngine.Build_Custom_Template(fileDialog.FileName, fileDialog.SafeFileName, contentType.Text, layoutType.Text);
+
+                    Settings_Changed(sender, e);
+                }
+            }
+            fileIntake.Click += FileIntake_Click;
+
+            /* Pulls autocomplete history from typed Chrome URLs.
+             * Used in addressIntake ComboBox.*/
+            AutoCompleteStringCollection Pull_Chrome__Address_History()
             {
                 AutoCompleteStringCollection urlCollection = new AutoCompleteStringCollection();
 
                 try
                 {
-                    File.Copy(@"C:\Users\Josh\AppData\Local\Google\Chrome\User Data\Default\History", Path.GetTempPath() + "Chrome_URL_Entry_History.db", true);
+                    File.Copy(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\Google\Chrome\User Data\Default\History", Path.GetTempPath() + "Chrome_URL_Entry_History.db", true);
 
                     string queryString = "SELECT url FROM urls WHERE typed_count > 0;";
                     string connectionString = "Data Source=" + Path.GetTempPath() + "Chrome_URL_Entry_History.db" + "; Version=3";
@@ -332,55 +363,15 @@ namespace Shadowmask
                         connection.Close();
                     }
                 }
-                catch(Exception)
+                catch (Exception)
                 {
                     //
                 }
                 return urlCollection;
             }
 
-
-
-            fileIntake.Click += FileIntake_Click;
-            layoutType.SelectedIndexChanged += (sender, e) => Settings_Changed(sender, e);
-            contentType.SelectedIndexChanged += (sender, e) => Settings_Changed(sender, e);
-            addressIntake.LostFocus += UrlIntake_LostFocus;
-
-            exitButton.Click += ExitButton_Click;
-
-            toolTip.SetToolTip(exitButton, "Save & Exit");
-            toolTip.SetToolTip(settingsButton, "Advanced Settings");
-
-            aboutButton.Click += AboutButton_HandleClick;
-
-            activityIndicator.Hide();
-
-            void AboutButton_HandleClick(object sender, EventArgs e)
-            {
-                System.Diagnostics.Process.Start("https://github.com/ProperEmergency/Shadowmask");
-            }
-
-            void ExitButton_Click(object sender, EventArgs e)
-            {
-                this.Hide();
-                Thread workerThread = new Thread(wallpaperEngine.Change_Displayed_Content);
-                workerThread.Start();
-            }
-
-            void FileIntake_Click(object sender, EventArgs e)
-            {
-                fileDialog.Filter = contentType.SelectedValue.ToString();
-
-                if (fileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    TemplateEngine templateEngine = new TemplateEngine();
-
-                    fileIntake.Text = templateEngine.Build_Custom_Template(fileDialog.FileName, fileDialog.SafeFileName, contentType.Text, layoutType.Text);
-
-                    Settings_Changed(sender, e);
-                }
-            }
-
+            /* Disables GUI to process settings changes, and writes/reads new settings values from the user config file.
+             * Triggered by all user-modifiable controls.*/
             void Settings_Changed(object sender, EventArgs e, bool writeRequired = true, bool readRequired = false)
             {
                 activityIndicator.Show();
@@ -392,17 +383,19 @@ namespace Shadowmask
 
                 if (readRequired)
                 {
-                    Thread workerThread = new Thread(Read_Settings);
-                    workerThread.Start();
+                    Task.Run(() => Read_Settings());
                 }
 
                 if (writeRequired)
                 {
-                    Thread workerThread = new Thread(Write_Settings);
-                    workerThread.Start();
+                    Task.Run(() => Write_Settings());
                 }
             }
+            contentType.SelectedIndexChanged += (sender, e) => Settings_Changed(sender, e);
+            layoutType.SelectedIndexChanged += (sender, e) => Settings_Changed(sender, e);
 
+            /* Reads new wallpaper configuration from user config, and updates GUI to match.
+             * Triggered by Settings_Change event.*/
             void Read_Settings()
             {
                 var selectedMonitor = monitorSelection_Panel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
@@ -436,6 +429,8 @@ namespace Shadowmask
 
             }
 
+            /* Writes new wallpaper configuration to user config based off of GUI status.
+             * Triggered by Settings_Change event.*/
             void Write_Settings()
             {
                 var selectedMonitor = monitorSelection_Panel.Controls.OfType<RadioButton>().FirstOrDefault(r => r.Checked);
@@ -450,20 +445,20 @@ namespace Shadowmask
                 contentType.Invoke((MethodInvoker)delegate { type = contentType.Text; });
                 layoutType.Invoke((MethodInvoker)delegate { layout = layoutType.Text; });
 
-                if (type == "Webpage"){content = addressIntake.Text;}
-                else{content = fileIntake.Text;}
+                if (type == "Webpage") { content = addressIntake.Text; }
+                else { content = fileIntake.Text; }
 
                 displayTheme = selectedMonitor.Text + ";" + type + ";" + content + ";" + layout;
 
                 try
                 {
-                    if(Properties.Settings.Default.ThemeLayout.Count > monitorIndex)
+                    if (Properties.Settings.Default.ThemeLayout.Count > monitorIndex)
                     {
                         Properties.Settings.Default.ThemeLayout.RemoveAt(monitorIndex);
                     }
                     Properties.Settings.Default.ThemeLayout.Insert(monitorIndex, displayTheme);
                 }
-                catch(NullReferenceException)
+                catch (NullReferenceException)
                 {
                     Properties.Settings.Default.ThemeLayout = new System.Collections.Specialized.StringCollection();
                     Properties.Settings.Default.ThemeLayout.Add(displayTheme);
@@ -474,6 +469,8 @@ namespace Shadowmask
                 Restore_GUI();
             }
 
+            /* Restores controls disabled by Settings_Changed event.
+             * Triggered by Read_Settings or Write_Settings.*/
             void Restore_GUI()
             {
                 if (contentType.InvokeRequired)
@@ -481,7 +478,7 @@ namespace Shadowmask
                     string currentType = "";
                     contentType.Invoke((MethodInvoker)delegate { currentType = contentType.Text; });
 
-                    if(currentType == "Webpage")
+                    if (currentType == "Webpage")
                     {
                         addressIntake.Invoke((MethodInvoker)delegate { addressIntake.Enabled = true; });
                     }
@@ -501,6 +498,7 @@ namespace Shadowmask
                     activityIndicator.Invoke((MethodInvoker)delegate { activityIndicator.Hide(); });
                 }
             }
+            #endregion
         }
     }
 }
