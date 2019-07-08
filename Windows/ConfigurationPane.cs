@@ -28,8 +28,7 @@ namespace Shadowmask
             this.TopMost = true;
             this.WindowState = FormWindowState.Normal;
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.MinimumSize = new Size(640, 440);
-            this.MaximumSize = new Size(840, 640);
+            this.MinimumSize = new Size(640, 500);
             this.AutoSize = true;
 
             InitializeMainMenu();

@@ -1,4 +1,5 @@
-﻿using CefSharp.WinForms;
+﻿using CefSharp;
+using CefSharp.WinForms;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -80,6 +81,8 @@ namespace Shadowmask
                 Dock = DockStyle.Fill,
             };
 
+            browser.FrameLoadEnd += Hide_Scrollbars_On_Load;
+
             wallpaperInstance.Controls.Add(browser);
 
             Window_API_Wrapper.DrawUnderDesktop(wallpaperInstance);
@@ -138,6 +141,17 @@ namespace Shadowmask
 
                 // Set that window as the parent of our form, drawing under the desktop!
                 Window_API_Wrapper.SetParent(wallpaperInstance.Handle, workerw);
+            }
+        }
+
+        private void Hide_Scrollbars_On_Load(object sender, FrameLoadEndEventArgs args)
+        {
+            if (args.Frame.IsMain)
+            {
+                args
+                    .Browser
+                    .MainFrame
+                    .ExecuteJavaScriptAsync("document.body.style.overflow = 'hidden'");
             }
         }
     }
