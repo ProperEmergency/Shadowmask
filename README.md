@@ -27,4 +27,4 @@ First, let me re-emphasize - this software is *free*. I built it for fun, and to
 
 But if you like me so much that you still want to give me money, you can donate through patreon:
 
-[![patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=21384517A)
+[![patreon](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/bePatron?u=21384517)
