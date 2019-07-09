@@ -15,11 +15,11 @@ The software installs to Program Files, and data is stored in the Roaming AppDat
 
 ## Issues
 
-This is new software, and the only way it can get better is with your feedback! Feel free to open up an [Issue](../issues) if you notice any problems.
+This is new software, and the only way it can get better is with your feedback! Feel free to open up an [issue](https://github.com/ProperEmergency/Shadowmask/issues) if you notice any problems.
 
 ## Feedback / Contact Information
 
-For general feedback / inquiries feel free to reach out to 
+For general feedback / inquiries feel free to reach out to me at proper.emergency@gmail.com 
 
 ## Donations
 
