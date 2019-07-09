@@ -167,7 +167,7 @@ namespace Shadowmask
             monitorSelection_Panel.BackColor = this.BackColor;
 
             int screenCount = 1;
-            foreach (Screen activeDisplay in Screen.AllScreens)
+            foreach (Screen activeDisplay in Screen.AllScreens.OrderBy(screen => screen.Bounds.X))
             {
                 RadioButton monitorButton = new RadioButton();
                 monitorButton.Anchor = AnchorStyles.None;

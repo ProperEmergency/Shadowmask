@@ -11,26 +11,33 @@ namespace Shadowmask
 
         public TrayClient()
         {
+            // Setup a system tray icon for the application.
             NotifyIcon notifyIcon = new NotifyIcon();
 
+            // Add a configuration & quit button to the context menu.
             MenuItem configurationButton = new MenuItem("Configure", new EventHandler(ShowConfig));
             MenuItem exitButton = new MenuItem("Exit", new EventHandler(Exit));
 
-            notifyIcon.Icon = Shadowmask.Properties.Resources.Shadowmask_Icon;
-
-            notifyIcon.ContextMenu = new ContextMenu
-            (
+            notifyIcon.ContextMenu = new ContextMenu(
+            
                 new MenuItem[]
                 {
                     configurationButton,
                     exitButton
-                }
-            );
+                });
 
+
+            // Match the application theme.
+            notifyIcon.Icon = Shadowmask.Properties.Resources.Shadowmask_Icon;
+
+            // Set visible & handle clicks.
+            notifyIcon.Visible = true;
             notifyIcon.MouseClick += NotifyIcon_MouseClick;
 
-            notifyIcon.Visible = true;
-
+            /*
+             * Runs when "Configure" menu item is clicked OR tray icon is left-clicked.
+             * Checks for exisiting instances of the config pane, and either reveals or creates one to show.
+             */
             void ShowConfig(object sender, EventArgs e)
             {
                 if (configPane != null)
@@ -45,6 +52,10 @@ namespace Shadowmask
                 }
             }
 
+            /*
+             * Runs when "Exit" menu item is clicked.
+             * Relaunches File Explorer and kills Shadowmask.
+             */
             void Exit(object sender, EventArgs e)
             {
                 Process.GetProcessesByName("Explorer")[0].Kill();
@@ -53,6 +64,10 @@ namespace Shadowmask
                 Application.Exit();
             }
 
+            /*
+             * Handles clicks to the tray icon.
+             * Either launch the context menu by default, or launch the config pane directly.
+             */
             void NotifyIcon_MouseClick(object sender, MouseEventArgs e)
             {
                 // Handle Left Clicks

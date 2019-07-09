@@ -19,47 +19,26 @@ namespace Shadowmask
             Initalize_Engine();
         }
 
-        public void Change_Displayed_Content()
-        {
-            int monitorNumber = Screen.AllScreens.Count() - 1;
-
-            foreach (Form dynamicWallpaper in wallpaperInstances)
-            {
-                ChromiumWebBrowser browser = dynamicWallpaper.Controls.OfType<ChromiumWebBrowser>().FirstOrDefault();
-                try
-                {
-                    System.Diagnostics.Debug.WriteLine(Properties.Settings.Default.ThemeLayout[monitorNumber].Split(';')[2]);
-                    browser.Load(Properties.Settings.Default.ThemeLayout[monitorNumber].Split(';')[2]);
-                }
-                catch (NullReferenceException)
-                {
-                    browser.Load(Properties.Settings.Default.DefaultContent);
-                }
-                monitorNumber--;
-            }
-        }
-
         private void Initalize_Engine()
         {
             List<Form> wallpaperInstances = new List<Form>();
 
-            if (Properties.Settings.Default.ThemeLayout == null)
-            {
-                foreach (Screen currentScreen in Screen.AllScreens)
-                {
-                    var wallpaperThread = Task.Run(() => WallpaperInstance(currentScreen, Properties.Settings.Default.DefaultContent));
-                }
-            }
+            int monitorIndex = 0;
 
-            else
+            foreach (Screen activeDisplay in Screen.AllScreens.OrderBy(screen => screen.Bounds.X))
             {
-                System.Collections.Specialized.StringCollection themeLayout = Properties.Settings.Default.ThemeLayout;
-
-                foreach (string monitorLayout in themeLayout)
+                try
                 {
-                    string[] formattedLayout = monitorLayout.Split(';');
-                    var wallpaperThread = Task.Run(() => WallpaperInstance( Screen.AllScreens[Int32.Parse(formattedLayout[0]) - 1], formattedLayout[2]));
+                    System.Collections.Specialized.StringCollection themeLayout = Properties.Settings.Default.ThemeLayout;
+                    String[] formattedLayout = themeLayout[monitorIndex].Split(';');
+                    Task.Run(() => WallpaperInstance(activeDisplay, formattedLayout[2]));
                 }
+                catch
+                {
+                    Task.Run(() => WallpaperInstance(activeDisplay, Properties.Settings.Default.DefaultContent));
+                }
+
+                monitorIndex++;
             }
         }
 
@@ -152,6 +131,25 @@ namespace Shadowmask
                     .Browser
                     .MainFrame
                     .ExecuteJavaScriptAsync("document.body.style.overflow = 'hidden'");
+            }
+        }
+
+        public void Change_Displayed_Content()
+        {
+            int monitorNumber = 0;
+
+            foreach (Form dynamicWallpaper in wallpaperInstances.OrderBy( form => form.Bounds.X))
+            {
+                ChromiumWebBrowser browser = dynamicWallpaper.Controls.OfType<ChromiumWebBrowser>().FirstOrDefault();
+                try
+                {
+                    browser.Load(Properties.Settings.Default.ThemeLayout[monitorNumber].Split(';')[2]);
+                }
+                catch (NullReferenceException)
+                {
+                    browser.Load(Properties.Settings.Default.DefaultContent);
+                }
+                monitorNumber++;
             }
         }
     }
