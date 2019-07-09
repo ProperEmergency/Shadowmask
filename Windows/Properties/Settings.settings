@@ -6,7 +6,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="DefaultContent" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">https://plaza.one/</Value>
+      <Value Profile="(Default)">https://properemergency.github.io/sites/shadowmask/default_wallpaper_theme.html</Value>
     </Setting>
   </Settings>
 </SettingsFile>

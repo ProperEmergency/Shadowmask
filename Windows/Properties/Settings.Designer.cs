@@ -37,7 +37,7 @@ namespace Shadowmask.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("https://plaza.one/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://properemergency.github.io/sites/shadowmask/default_wallpaper_theme.html")]
         public string DefaultContent {
             get {
                 return ((string)(this["DefaultContent"]));
