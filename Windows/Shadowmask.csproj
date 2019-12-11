@@ -92,7 +92,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Shadowmask_Key.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>Shadowmask_PFX.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Shadowmask_Icon_Minimal.ico</ApplicationIcon>
@@ -162,6 +162,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <None Include="Shadowmask_Key.pfx" />
+    <None Include="Shadowmask_PFX.pfx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
