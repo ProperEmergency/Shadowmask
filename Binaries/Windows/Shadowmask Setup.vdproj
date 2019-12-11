@@ -51,6 +51,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_11F293AB7F12417C908DA4B781838F8C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_121E5670F22642B486D9FC4C5E10FDBC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -897,6 +903,26 @@
             "TargetName" = "8:bg.pak"
             "Tag" = "8:"
             "Folder" = "8:_208755766CF846488E988D451C342071"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_11F293AB7F12417C908DA4B781838F8C"
+            {
+            "SourcePath" = "8:..\\..\\Windows\\bin\\x64\\Release\\devtools_resources.pak"
+            "TargetName" = "8:devtools_resources.pak"
+            "Tag" = "8:"
+            "Folder" = "8:_E39BBBF3928247598B6C37905495ADE3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2906,7 +2932,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Shadowmask"
         "ProductCode" = "8:{FD031CE7-8105-42BF-BF42-4DAB29B25077}"
-        "PackageCode" = "8:{BE396A71-367B-465C-901F-F99F50891410}"
+        "PackageCode" = "8:{CDB892A5-1751-4B86-A7BB-24B31CC2A67E}"
         "UpgradeCode" = "8:{AC8B253A-364B-4A8B-9EFB-3562A7065B4B}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
